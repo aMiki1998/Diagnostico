@@ -1,50 +1,75 @@
 package com.miki.diagnostico;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
-import android.app.Application;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.miki.diagnostico.data.RemoteService;
+import com.miki.diagnostico.data.Sintomas;
+import com.miki.diagnostico.data.SintomasAPI;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RemoteService remoteService = new RemoteService();
+    private SintomasAPI sintomasAPI = remoteService.getRetrofit().create(SintomasAPI.class);
     String strReturn;
+
+    private MaterialCheckBox cbTos;
+    private MaterialCheckBox cbCefalea;
+    private MaterialCheckBox cbCongestionNasal;
+    private MaterialCheckBox cbDificultadRespiratoria;
+    private MaterialCheckBox cbDolorGarganta;
+    private MaterialCheckBox cbFiebre;
+    private MaterialCheckBox cbDiarrea;
+    private MaterialCheckBox cbNauseas;
+    private MaterialCheckBox cbPerdidaOlfato;
+    private MaterialCheckBox cbDolorAbdominal;
+    private MaterialCheckBox cbDolorArticulaciones;
+    private  MaterialCheckBox cbDolorMuscular;
+    private MaterialCheckBox cbDolorPecho;
+    private EditText etOtroSintoma;
+    private MaterialButton btEnviarSintomas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MaterialCheckBox cbTos = findViewById(R.id.cbTos);
-        MaterialCheckBox cbCefalea = findViewById(R.id.cbCefalea);
-        MaterialCheckBox cbCongestionNasal = findViewById(R.id.cbCongestionNasal);
-        MaterialCheckBox cbDificultadRespiratoria = findViewById(R.id.cbDificultadRespiratoria);
-        MaterialCheckBox cbDolorGarganta = findViewById(R.id.cbDolorGarganta);
-        MaterialCheckBox cbFiebre = findViewById(R.id.cbFiebre);
-        MaterialCheckBox cbDiarrea = findViewById(R.id.cbDiarrea);
-        MaterialCheckBox cbNauseas = findViewById(R.id.cbNauseas);
-        MaterialCheckBox cbPerdidaOlfato = findViewById(R.id.cbPerdidaOlfato);
-        MaterialCheckBox cbDolorAbdominal = findViewById(R.id.cbDolorAbdominal);
-        MaterialCheckBox cbDolorArticulaciones = findViewById(R.id.cbDolorArticulaciones);
-        MaterialCheckBox cbDolorMuscular = findViewById(R.id.cbDolorMuscular);
-        MaterialCheckBox cbDolorPecho = findViewById(R.id.cbDolorPecho);
-        EditText etOtroSintoma = findViewById(R.id.etOtroSintoma);
-        MaterialButton btEnviarSintomas = findViewById(R.id.btEnviarSintomas);
+        cbTos= findViewById(R.id.cbTos);
+        cbCefalea = findViewById(R.id.cbCefalea);
+        cbCongestionNasal = findViewById(R.id.cbCongestionNasal);
+        cbDificultadRespiratoria = findViewById(R.id.cbDificultadRespiratoria);
+        cbDolorGarganta = findViewById(R.id.cbDolorGarganta);
+        cbFiebre = findViewById(R.id.cbFiebre);
+        cbDiarrea = findViewById(R.id.cbDiarrea);
+        cbNauseas = findViewById(R.id.cbNauseas);
+        cbPerdidaOlfato = findViewById(R.id.cbPerdidaOlfato);
+        cbDolorAbdominal = findViewById(R.id.cbDolorAbdominal);
+        cbDolorArticulaciones = findViewById(R.id.cbDolorArticulaciones);
+        cbDolorMuscular = findViewById(R.id.cbDolorMuscular);
+        cbDolorPecho = findViewById(R.id.cbDolorPecho);
+        etOtroSintoma = findViewById(R.id.etOtroSintoma);
+        btEnviarSintomas = findViewById(R.id.btEnviarSintomas);
 
+        btEnviarSintomas.setOnClickListener(view -> {
+            Log.v("CONSOLE", "enviarSintomas");
+            //enviarSintomas(sintomas);
+            sendSymptoms();
+        });
+
+
+    }
+
+    private void sendSymptoms() {
         Sintomas sintomas = new Sintomas();
-
         sintomas.setTos(cbTos.isChecked());
         sintomas.setCefalea(cbCefalea.isChecked());
         sintomas.setCongestionNasal(cbCongestionNasal.isChecked());
@@ -60,22 +85,30 @@ public class MainActivity extends AppCompatActivity {
         sintomas.setDolorPecho(cbDolorPecho.isChecked());
         sintomas.setOtroSintoma(!(etOtroSintoma.getText().toString().trim().length() == 0));
 
-        btEnviarSintomas.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                enviarSintomas(sintomas);
+        Call<Object> call = sintomasAPI.processSymptoms(sintomas);
+
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Call<Object> call, Response<Object> response) {
+                try {
+                    if (response.isSuccessful()) {
+                        strReturn = response.body().toString();
+                        Log.v("CONSOLE","El resultado es " + strReturn);
+                    }
+                } catch (Exception exception) {
+                    Log.v("CONSOLE","error" + exception.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Object> call, Throwable throwable) {
+                Log.v("CONSOLE","Error con el servicio" + throwable.getMessage());
             }
         });
-
-
     }
 
     private void enviarSintomas(Sintomas sintomas) {
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api-diagnostico-covid19.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create()).build();
-
-        SintomasAPI sintomasAPI = retrofit.create(SintomasAPI.class);
 
         Call<Sintomas> call = sintomasAPI.sendSintomas(
                 sintomas.isTos(),
@@ -99,16 +132,16 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     if (response.isSuccessful()) {
                         strReturn = response.body().toString();
-                        Toast.makeText(getApplicationContext(), "El resultado es " + strReturn, Toast.LENGTH_LONG).show();
+                        Log.v("CONSOLE","El resultado es " + strReturn);
                     }
                 } catch (Exception exception) {
-                    Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.v("CONSOLE","error" + exception.getMessage());
                 }
             }
 
             @Override
-            public void onFailure(Call<Sintomas> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Error con el servicio", Toast.LENGTH_LONG).show();
+            public void onFailure(Call<Sintomas> call, Throwable throwable) {
+                Log.v("CONSOLE","Error con el servicio" + throwable.getMessage());
             }
         });
     }

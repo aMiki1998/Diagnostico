@@ -1,21 +1,51 @@
-package com.miki.diagnostico;
+package com.miki.diagnostico.data;
 
+import com.google.gson.annotations.SerializedName;
+
+/*
+{
+"tos": true,
+"cefalea": true,
+"congestion_nasal": true,
+"dificultad_respiratoria": true,
+"dolor_garganta": true,
+"fiebre": true,
+"diarrea": true,
+"nauseas": true,
+"anosmia_hiposmia": true,
+"dolor_abdominal": true,
+"dolor_articulaciones": true,
+"dolor_muscular": true,
+"dolor_pecho": true,
+"otros_sintomas": true
+}
+ */
 public class Sintomas {
 
     private boolean tos;
     private boolean cefalea;
+    @SerializedName("congestion_nasal")
     private boolean congestionNasal;
+    @SerializedName("dificultad_respiratoria")
     private boolean dificultadRespiratoria;
+    @SerializedName("dolor_garganta")
     private boolean dolorGarganta;
     private boolean fiebre;
     private boolean diarrea;
     private boolean nauseas;
     private boolean perdidaOlfato;
+    @SerializedName("dolor_abdominal")
     private boolean dolorAbdominal;
+    @SerializedName("dolor_articulaciones")
     private boolean dolorArticulaciones;
+    @SerializedName("dolor_muscular")
     private boolean dolorMuscular;
+    @SerializedName("dolor_pecho")
     private boolean dolorPecho;
+    @SerializedName("otros_sintomas")
     private boolean otroSintoma;
+    @SerializedName("anosmia_hiposmia")
+    private boolean anosmiaHipsomia = false;
 
     public Sintomas(boolean tos, boolean cefalea, boolean congestionNasal, boolean dificultadRespiratoria, boolean dolorGarganta, boolean fiebre, boolean diarrea, boolean nauseas, boolean perdidaOlfato, boolean dolorAbdominal, boolean dolorArticulaciones, boolean dolorMuscular, boolean dolorPecho, boolean otroSintoma) {
         this.tos = tos;
@@ -147,5 +177,13 @@ public class Sintomas {
 
     public void setOtroSintoma(boolean otroSintoma) {
         this.otroSintoma = otroSintoma;
+    }
+
+    public boolean isAnosmiaHipsomia() {
+        return anosmiaHipsomia;
+    }
+
+    public void setAnosmiaHipsomia(boolean anosmiaHipsomia) {
+        this.anosmiaHipsomia = anosmiaHipsomia;
     }
 }
