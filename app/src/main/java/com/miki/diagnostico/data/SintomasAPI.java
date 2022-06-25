@@ -1,7 +1,8 @@
-package com.miki.diagnostico;
+package com.miki.diagnostico.data;
 
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
@@ -10,7 +11,7 @@ public interface SintomasAPI {
 
     @FormUrlEncoded
     @POST("Diagnostico")
-    public Call<Sintomas> sendSintomas(
+    Call<Sintomas> sendSintomas(
             @Field("tos") boolean tos,
             @Field("cefalea") boolean cefalea,
             @Field("congestion_nasal") boolean congestion_nasal,
@@ -26,5 +27,8 @@ public interface SintomasAPI {
             @Field("dolor_pecho") boolean dolor_pecho,
             @Field("otros_sintomas") boolean otros_sintomas
             );
+
+    @POST("Diagnostico")
+    Call<Object> processSymptoms(@Body Sintomas sintomas);
 
 }
